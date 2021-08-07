@@ -8,7 +8,7 @@ Its goal is to detect when a course is going to be available by polling ISA's we
 
 ## How to use?
 
-### Via [npm](https://www.npmjs.com/package/shs-notifier)
+### (temporarily unavailable) ~~Via [npm](https://www.npmjs.com/package/shs-notifier)~~
 
 * Install [node.js](https://nodejs.org/en/download)
 * Install `shs-notifier` via npm: `npm i -g shs-notifier`
