@@ -18,7 +18,7 @@ module.exports = class Watcher extends EventEmitter {
                 const now_available_courses = wc.map(id => courses[id])
                             .filter(d => !!d)
                             .filter(d => d.isAvailable)
-                            .filter(d => user_settings.watched_courses.includes(d.id))
+                            .filter(d => watched_courses.includes(d.id))
 
                 if (now_available_courses.length > 0) {
                     this.emit('available-course', now_available_courses)
