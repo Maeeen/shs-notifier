@@ -8,10 +8,22 @@ const connect_isa = require('./lib/connect-isa')
 const generate_inquirer_select_courses = require('./util/generate-inquirer-select-courses')
 const notify = require('./util/notify')
 const await_keypress = require('./util/await-keypress')
+const disable_auto_logout = require('./lib/auto-logout-disabler')
+const Watcher = require('./Watcher')
 
 const ISA_ADDR = 'https://isa.epfl.ch/imoniteur_ISAP'
 
-// Login
+// Start
+
+let begin = () => {
+    const args = process.argv.slice(2)
+    if (args.length > 0)
+        return require('./cli-args')(ISA_ADDR, args)
+
+    start()
+}
+
+// Login menu
 
 let start = async () => {
     console.log(`Using ${ISA_ADDR}`)
@@ -86,21 +98,16 @@ let connect = async token => {
     }
 }
 
-// Auto-logout disabler
-let disable_auto_logout = async ({ token, auto_logout_date }) => {
-    let time = auto_logout_date - Date.now()
-
-    setTimeout(async () => {
-        let { logout_delay } = await connect_isa.fetch_home(ISA_ADDR, token)
-        disable_auto_logout({ token, auto_logout_date: new Date(Date.now() + logout_delay )})
-    }, time)
-}
-
 // Main program
 let user_settings = {
     watched_courses: [],
     polling_interval: 5000,
-    notification_settings: { do_discord_webhook: false, desktop_notification: true }
+    notification_settings: {
+        do_discord_webhook: false,
+        discord_webhook_url: '',
+        desktop_notification: true,
+        discord_webhook_spam: false
+    }
 }
 
 let home = async ({token, username, course_reg_url, person_name}) => {
@@ -127,7 +134,7 @@ let home = async ({token, username, course_reg_url, person_name}) => {
             selected_courses.forEach(e => console.log(`${' '.repeat(3)} - ${e}`))
         }
 
-        user_settings.watched_courses = selected_courses.map(course => Object.values(courses).find(v => v.text === course).path)
+        user_settings.watched_courses = selected_courses.map(course => Object.values(courses).find(v => v.text === course).id)
     }
 
     if (menu.action == 'Notification options') {
@@ -208,56 +215,37 @@ let save_settings = async () => {
 // Watch
 
 let watch = async ({ token, course_reg_url }) => {
+    const watcher = new Watcher()
+
     if (user_settings.watched_courses.length == 0) {
         console.log(`${chalk.yellow('⚠')} No courses have been selected. Please select the courses to watch on the main menu.`)
         return
     }
 
-    const courses = await connect_isa.fetch_courses(ISA_ADDR, token, course_reg_url)
-    let already_avail_courses = user_settings.watched_courses
-                                    .map(path => courses[path])
-                                    .filter(c => c.isCourse)
-                                    .filter(course => course.isAvailable)
-                                    .map(course => course.path)
-
-    let remove_from_watching_list = path => {
+    let remove_from_watching_list = id => {
         let wc = user_settings.watched_courses,
-            ind = wc.indexOf(path)
+            ind = wc.indexOf(id)
 
         if (ind > -1)
             wc.splice(ind, 1)
     }
 
-    if (already_avail_courses.length > 0) {
-        console.log(`${chalk.green('→')} ${already_avail_courses.map(d => courses[d].text).split(', ')} available! Removing them from watch-list.`)
+    console.log(`${chalk.yellow('→')} Watching ${user_settings.watched_courses.length} courses… Press c to stop.`)
+    console.log('.............')
 
-        already_avail_courses.forEach(path => remove_from_watching_list(path))
-    }
+    watcher.watch(ISA_ADDR, { token, course_reg_url }, user_settings)
+    
+    watcher.on('available-course', courses => {
+        notify(courses.map(d => d.text), user_settings.notification_settings)
+        courses.map(d => d.id).forEach(p => remove_from_watching_list(p))
+    })
 
-    let check_courses = async () => {
-        const courses = await connect_isa.fetch_courses(ISA_ADDR, token, course_reg_url)
-        const wc = user_settings.watched_courses
-
-        const now_available_courses = wc.map(path => courses[path])
-                                        .filter(d => d.isAvailable)
-                                        .filter(d => user_settings.watched_courses.includes(d.path))
-
-        if (now_available_courses.length > 0) {
-            notify(now_available_courses.map(d => d.text), user_settings.notification_settings)
-            now_available_courses.forEach(course => {
-                already_avail_courses.push(course.path)
-                remove_from_watching_list(course.path)
-            })
-        }
-
+    watcher.on('checked', () => {
         process.stdout.clearLine()
         process.stdout.cursorTo(0)
         process.stdout.write(`${chalk.blue('i')} Last update: ${new Date().toLocaleString()}. Watching ${user_settings.watched_courses.length} courses.`)
-    }
+    })
 
-    console.log(`${chalk.yellow('→')} Watching ${user_settings.watched_courses.length} courses… Press c to stop.`)
-    console.log('.............')
-    let interval = setInterval(() => check_courses(), user_settings.polling_interval)
     return new Promise(async resolve => {
         let loop = async () => {
             let keypress = await await_keypress(process.stdin)
@@ -265,7 +253,7 @@ let watch = async ({ token, course_reg_url }) => {
             if (keypress.codePointAt(0) != 99)
                 await loop()
             else {
-                clearInterval(interval)
+                watcher.stop()
                 console.log(`\n${chalk.red('→')} Stopped watching`)
                 resolve()
             }
@@ -275,4 +263,4 @@ let watch = async ({ token, course_reg_url }) => {
     })
 }
 
-start()
+begin()

@@ -2,22 +2,24 @@ const { Separator } = require('inquirer')
 
 module.exports = (courses, selected = []) => {
     const choices = []
+    courses = Object.values(courses)
 
     let add = path => {
-        let course = courses[path]
+        let course = courses.find(c => c.path == path)
         if (!course.isCourse) {
             choices.push(new Separator(`${' '.repeat(course.level)} ${course.text}`))
         } else {
             choices.push({
-                checked: selected.includes(path),
-                name: courses[path].text
+                checked: selected.includes(course.id),
+                name: courses.find(c => c.path == path).text
             })
         }
 
-        Object.keys(courses).filter(p => p.substring(0, p.lastIndexOf('.')) == path).forEach(p => add(p))
+        courses
+                .map(c => c.path).filter(p => p.substring(0, p.lastIndexOf('.')) == path).forEach(p => add(p))
     }
 
-    add(Object.keys(courses)[0])
+    add(courses[0].path)
 
     return {
         choices,

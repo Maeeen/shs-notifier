@@ -35,14 +35,14 @@ module.exports = (availableCourses, { do_discord_webhook, discord_webhook_url, d
     
     const text = `Course available!!! ${availableCourses}`
 
-    console.log(`${chalk.red('!')} ${chalk.yellow(text)}`)
+    console.log(`\n${chalk.red('!')} ${chalk.yellow(text)}\n`)
 
     if (do_discord_webhook) {
         trigger_webhook(text, discord_webhook_url)
 
         if (discord_webhook_spam) {
             console.log(`\n${chalk.red('!')} Starting to spam the webhook. Will stop in 60 seconds.`)
-            let interval = setInterval(() => trigger_webhook(text, discord_webhook_url), 10000)
+            let interval = setInterval(() => trigger_webhook(text, discord_webhook_url), 2000)
 
             setTimeout(() => clearInterval(interval), 60000)
         }
