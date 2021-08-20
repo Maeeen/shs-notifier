@@ -11,6 +11,7 @@ module.exports = (courses, selected = []) => {
         } else {
             choices.push({
                 checked: selected.includes(course.id),
+                disabled: course.isAvailable ? 'Not available (see ISA)' : false,
                 name: courses.find(c => c.path == path).text
             })
         }
