@@ -1,6 +1,6 @@
 # SHS Notifier
 
-:warning: This project is mean to be used on [EPFL's IS-Academia](https://isa.epfl.ch). No support will be given on any other ISA infrastructures.
+:warning: This project is meant to be used on [EPFL's IS-Academia](https://isa.epfl.ch). No support will be given on any other ISA infrastructures.
 
 ## Its goal
 
