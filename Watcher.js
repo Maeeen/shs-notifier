@@ -22,10 +22,14 @@ module.exports = class Watcher extends EventEmitter {
 
                 if (now_available_courses.length > 0) {
                     this.emit('available-course', now_available_courses)
-                    let ind = watched_courses.indexOf(path)
+                    let unwatch = id => {
+                        let ind = watched_courses.indexOf(id)
             
-                    if (ind > -1)
-                        watched_courses.splice(ind, 1)
+                        if (ind > -1)
+                            watched_courses.splice(ind, 1)
+                    }
+
+                    now_available_courses.map(d => d.id).forEach(i => unwatch(i))
                 }
 
                 this.emit('checked')
