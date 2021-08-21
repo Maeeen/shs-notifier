@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const inquirer = require('inquirer')
 const chalk = require('chalk')
-const fs = require('fs/promises')
+const { promises: fs } = require('fs')
 
 const login_isa = require('./lib/login-isa')
 const connect_isa = require('./lib/connect-isa')
