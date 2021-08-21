@@ -1,7 +1,10 @@
-# SHS Notifier
+# SHS Notifier [![npm version](https://img.shields.io/npm/v/shs-notifier)](https://www.npmjs.com/package/shs-notifier) ![works on my machine](https://img.shields.io/badge/works%20on-my%20machine-orange)
 
 :warning: This project is meant to be used on [EPFL's IS-Academia](https://isa.epfl.ch). No support will be given on any other ISA infrastructures.
 
+# Demo
+
+![Demonstration](./misc/demo.gif)
 ## Its goal
 
 Its goal is to detect when a course is going to be available by polling ISA's website, and notifying when one or multiple courses are available.
