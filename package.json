@@ -1,6 +1,6 @@
 {
   "name": "shs-notifier",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A tool that notifies you when courses at EPFL are available for registration.",
   "main": "index.js",
   "dependencies": {
