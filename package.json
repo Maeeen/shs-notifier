@@ -1,13 +1,13 @@
 {
   "name": "shs-notifier",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A tool that notifies you when courses at EPFL are available for registration.",
   "main": "index.js",
   "dependencies": {
     "chalk": "^4.1.2",
     "html-entities": "^2.3.2",
     "inquirer": "^8.1.2",
-    "node-html-parser": "^4.1.3",
+    "node-html-parser": "^4.1.5",
     "node-notifier": "^10.0.0"
   },
   "repository": {
