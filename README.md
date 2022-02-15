@@ -54,3 +54,7 @@ This is not a well written program, and to be honest, I do not care. There is ma
 ## Project's name origin
 
 Anyone at EPFL can guess it lol.
+
+## Contributing
+
+See [the contributing page](./CONTRIBUTING.md)
