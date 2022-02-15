@@ -42,6 +42,8 @@ There is two ways to use this tool. The first one involves following an interact
     --spam-discord             : Spam the webhook instead of only one send. Default=false
     --disable-desktop-notify   : Disables desktop notification
     --polling-interval=<int>   : The polling interval, in milliseconds. Default=5000
+    --tg-creds=<token>*<id>    : Bot token and dst chat id, update and activate telegram bot.
+
 ```
 
 

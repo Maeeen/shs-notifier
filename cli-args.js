@@ -21,6 +21,7 @@ Usage:
     --spam-discord             : Spam the webhook instead of only one send. Default=false
     --disable-desktop-notify   : Disables desktop notification
     --polling-interval=<int>   : The polling interval, in milliseconds. Default=5000
+    --tg-creds=<token>*<id>    : Bot token and dst chat id, update and activate telegram bot.
 
 This tool is not endorsed by any organization.
 `)
@@ -100,7 +101,10 @@ module.exports = async (ISA_ADDR, args) => {
         do_discord_webhook: false,
         discord_webhook_url: '',
         desktop_notification: !args.includes('--disable-desktop-notify'),
-        discord_webhook_spam: args.includes('--spam-discord')
+        discord_webhook_spam: args.includes('--spam-discord'),
+        do_telegram_bot: false,
+        bot_token: '',
+        chat_id: 0
     }
 
     const discordWebhookUrlArg = find_arg('--discord-webhook-url=')
@@ -112,10 +116,20 @@ module.exports = async (ISA_ADDR, args) => {
             console.warn(`Warning: The given discord webhook url is invalid.`)
         }
     }
+    const tgCreds = find_arg('--tg-args=')
+    if (tgCreds) {
+        let split = credsArg.split('*')
+        let telegramBotTokenArg = split.shift()
+        let telegramChatIdArg = split.join('*')
+
+        notification_settings.do_telegram_bot = true //TODO: no input check
+        notification_settings.bot_token = telegramBotTokenArg
+        notification_settings.chat_id = telegramChatIdArg
+    }
 
     const watcher = new Watcher()
 
-    auto_logout_disabler({ token: cookie, auto_logout_date })
+    auto_logout_disabler({token: cookie, auto_logout_date})
 
     watcher.on('available-course', courses => {
         notify(courses.map(d => d.text), notification_settings)

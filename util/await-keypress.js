@@ -5,7 +5,7 @@ module.exports = stdin => {
     return new Promise(res => stdin.once('data', k => {
         res(k)
 
-        if (k.codePointAt(0) == 3)
+        if (k.codePointAt(0) === 3)
             process.exit()
         stdin.setRawMode(false)
     }))

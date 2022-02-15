@@ -31,10 +31,18 @@ let trigger_webhook = (text, webhook_url, retry_if_error) => {
     r.end()
 }
 
-module.exports = (availableCourses, { do_discord_webhook, discord_webhook_url, discord_webhook_spam, desktop_notification }) => {
+module.exports = (availableCourses, {
+    do_discord_webhook,
+    discord_webhook_url,
+    discord_webhook_spam,
+    desktop_notification,
+    do_telegram_bot,
+    bot_token,
+    chat_id
+}) => {
     if (availableCourses instanceof Array)
         availableCourses = availableCourses.join(', ')
-    
+
     const text = `Course available!!! ${availableCourses}`
 
     console.log(`\n${chalk.red('!')} ${chalk.yellow(text)}\n`)
@@ -55,6 +63,38 @@ module.exports = (availableCourses, { do_discord_webhook, discord_webhook_url, d
             title: 'SHS Notifier',
             message: text
         });
+    }
+    if (do_telegram_bot) {
+        process.env.NTBA_FIX_319 = 1;
+        const TelegramBot = require('node-telegram-bot-api');
+
+        // replace the value below with the Telegram token you receive from @BotFather
+        const token = bot_token;
+        // you can get chat Id
+        const chatId = chat_id;
+
+        const bot = new TelegramBot(token, {polling: false});
+
+
+        const telegram_bot = (message, json) => {
+            try {
+                bot.sendMessage(chatId, message + '\n\n<pre>' + JSON.stringify(json, null, 2) + '</pre>', {
+                    parse_mode: 'html'
+                });
+            } catch (err) {
+                console.log('Something went wrong when trying to send a Telegram notification', err);
+            }
+        }
+        const ACTIONS = {
+            SNIPED_COURSE: '🔫'
+        }
+
+        module.exports = {
+            telegram_bot: telegram_bot,
+            ACTIONS
+        }
+        telegram_bot(text, ACTIONS.SNIPED_COURSE);
+
     }
 
 }
